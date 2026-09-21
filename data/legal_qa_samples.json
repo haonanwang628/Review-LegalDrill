@@ -1,0 +1,91 @@
+{
+  "_readme": "自造的中文法律QA小样本，格式对应论文 Sec.4.1 Datasets 描述的 document-grounded 二元(是/否)问答任务（模仿 LegalBench 的 Consumer QA / Privacy Policy Entailment 风格）。trap_type 字段是我们为了让 MockLLMClient 的行为可控、可复现而自行添加的辅助标注，代表这条样本主要考察的法律推理陷阱类型；论文原始数据集并没有这个字段，真实场景下这类归因由 Audit Agent（强模型）在运行时自主完成，而非数据集自带标签。split 字段区分 train（用于 Exploration/Diagnosis/Targeted Generation 训练循环）和 eval（held-out，用于效果评估），且刻意保证 eval 与 train 样本的 trap_type 相同但具体上下文不同，用来演示论文强调的『错误指令 context-agnostic、可跨上下文复现』这一核心设计。answer 字段在 Yes/No 间大致均衡分布，避免评估指标退化。",
+  "trap_types": {
+    "missing_condition": "遗漏了条款中的限制/例外条件，把有条件的规则当成无条件规则",
+    "logical_leap": "从条款做了未被文本支持的过度推断（时间/因果/主体上的跳跃）",
+    "term_misreading": "混淆或误读了条款中明确定义的关键术语的外延",
+    "scope_overgeneralization": "把只适用于特定主体/特定情形的条款扩大或缩小适用到其他情形"
+  },
+  "samples": [
+    {
+      "id": "cqa_001",
+      "split": "train",
+      "trap_type": "missing_condition",
+      "contract": "本应用可能自动收集特定信息，包括设备型号、操作系统版本，以及在连接Wi-Fi时该Wi-Fi网络的MAC地址。以上列举信息不包含用户的通讯录内容。",
+      "question": "该政策是否明确排除了用户通讯录内容属于自动收集的范围？",
+      "answer": "Yes"
+    },
+    {
+      "id": "cqa_009",
+      "split": "train",
+      "trap_type": "missing_condition",
+      "contract": "买方可在收到货物后7天内无理由退货，但定制商品和已拆封的食品类商品除外。",
+      "question": "买方购买的已拆封食品是否可以在7天内无理由退货？",
+      "answer": "No"
+    },
+    {
+      "id": "cqa_005",
+      "split": "eval",
+      "trap_type": "missing_condition",
+      "contract": "员工每年可享受5天带薪病假，需提前一天通知主管，紧急情况除外。",
+      "question": "员工是否必须无论何种情况都提前一天通知主管才能休病假？",
+      "answer": "No"
+    },
+    {
+      "id": "cqa_002",
+      "split": "train",
+      "trap_type": "logical_leap",
+      "contract": "用户可以随时通过设置页面申请删除其账户，账户删除申请提交后30天内，相关数据将被彻底清除。",
+      "question": "用户提交删除账户申请后，其数据是否会被立即永久清除？",
+      "answer": "No"
+    },
+    {
+      "id": "cqa_010",
+      "split": "train",
+      "trap_type": "logical_leap",
+      "contract": "若甲方未能按期支付第一期款项，乙方有权暂停后续服务，但需提前书面通知甲方。",
+      "question": "若乙方已提前向甲方发出书面通知，乙方是否有权暂停后续服务？",
+      "answer": "Yes"
+    },
+    {
+      "id": "cqa_006",
+      "split": "eval",
+      "trap_type": "logical_leap",
+      "contract": "租户若连续三个月未支付租金，房东有权终止租赁合同。",
+      "question": "若房东已确认租户连续三个月未支付租金，房东是否有权终止租赁合同？",
+      "answer": "Yes"
+    },
+    {
+      "id": "cqa_003",
+      "split": "train",
+      "trap_type": "term_misreading",
+      "contract": "本协议所称'关联公司'仅指与本公司直接或间接持股超过50%的实体。若关联公司需要访问用户数据，须事先获得用户同意。",
+      "question": "本公司的关联公司（持股超过50%的实体）访问用户数据前，是否需要事先获得用户同意？",
+      "answer": "Yes"
+    },
+    {
+      "id": "cqa_007",
+      "split": "eval",
+      "trap_type": "term_misreading",
+      "contract": "本协议所称'紧急联系人'仅限于用户在注册时指定的一名自然人，不包括用户后续通过客服口头添加的联系人。",
+      "question": "用户通过客服口头添加的联系人是否属于本协议定义的'紧急联系人'？",
+      "answer": "No"
+    },
+    {
+      "id": "cqa_004",
+      "split": "train",
+      "trap_type": "scope_overgeneralization",
+      "contract": "本合同项下，若卖方在交付前发现质量瑕疵，应立即通知买方，并可选择更换货物或退还相应价款。",
+      "question": "该条款是否仅适用于卖方在交付前发现的质量瑕疵？",
+      "answer": "Yes"
+    },
+    {
+      "id": "cqa_008",
+      "split": "eval",
+      "trap_type": "scope_overgeneralization",
+      "contract": "本隐私政策仅适用于通过官方App收集的信息，不适用于用户在第三方合作网站上填写的信息。",
+      "question": "用户在第三方合作网站填写的信息是否受本隐私政策保护？",
+      "answer": "No"
+    }
+  ]
+}
